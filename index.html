@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KALA-SETU | Prototype</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Inject html2pdf.js via CDN for PDF Generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
   <script>
@@ -37,9 +36,7 @@
       <div id="screen-1" class="screen active">
         <button onclick="navigateTo('screen-2')" class="w-full bg-terracotta-600 text-white font-bold py-4 rounded-xl shadow-md mb-6">+ Catalog New Craft</button>
         <h3 class="text-xs font-bold text-gray-500 uppercase mb-3">Live Network Feed</h3>
-        <div id="dashboard-list" class="space-y-3">
-          <!-- Dynamic Items Injected Here -->
-        </div>
+        <div id="dashboard-list" class="space-y-3"></div>
       </div>
 
       <!-- SCREEN 2: INGESTION -->
@@ -47,8 +44,9 @@
         <button onclick="navigateTo('screen-1')" class="text-xs font-bold text-navy-700 mb-4">← Back</button>
         <div class="space-y-4">
           <select id="artisan-select" class="w-full border rounded-xl p-3 text-sm outline-none">
-            <option value="Meera Bai">Meera Bai (Bamboo Craft)</option>
-            <option value="Sunita Devi">Sunita Devi (Textiles)</option>
+            <option value="Meera Bai (Bamboo Craft)">Meera Bai (Bamboo Craft)</option>
+            <option value="Sunita Devi (Textiles)">Sunita Devi (Textiles)</option>
+            <option value="Ramesh Lal (Pottery)">Ramesh Lal (Pottery)</option>
           </select>
           <div class="relative w-full h-36 border-2 border-dashed border-gray-300 rounded-xl bg-white flex flex-col items-center justify-center overflow-hidden">
             <input type="file" accept="image/*" onchange="handleImage(event)" class="absolute inset-0 opacity-0 cursor-pointer z-10">
@@ -67,22 +65,24 @@
       <div id="screen-3" class="screen text-center py-20">
         <div class="w-14 h-14 border-4 border-gray-200 border-t-terracotta-600 rounded-full animate-spin mx-auto mb-4"></div>
         <h3 class="font-extrabold text-navy-900 text-sm">Executing Multimodal AI Pipeline...</h3>
+        <p class="text-xs text-gray-500 mt-2">Processing via Groq Llama-3 & Vision Engine</p>
       </div>
 
       <!-- SCREEN 4: GENERATED LISTING REVIEW -->
       <div id="screen-4" class="screen">
         <div id="pdf-content" class="bg-white rounded-xl border border-gray-200 overflow-hidden mb-4 pb-2">
-          <div class="h-44 bg-gray-100 flex items-center justify-center"><img id="review-img" class="w-full h-full object-contain p-2"></div>
+          <div class="h-44 bg-gray-100 flex items-center justify-center">
+            <img id="review-img" class="w-full h-full object-contain p-2">
+          </div>
           <div class="p-3">
-            <h3 id="res-title" class="font-bold text-sm text-gray-900">Loading...</h3>
+            <h3 id="res-title" class="font-bold text-sm text-gray-900"></h3>
             <p id="res-meta" class="text-[10px] text-terracotta-600 font-semibold mb-2"></p>
             
-            <!-- Multi-lingual SEO -->
             <div class="bg-gray-50 p-2 rounded-md mb-3 border border-gray-100">
-              <p class="text-[9px] font-bold text-gray-500 uppercase mb-1">Generated SEO Descriptions:</p>
-              <p id="res-desc-en" class="text-[10px] text-gray-800 mb-1 leading-tight"><span class="font-bold">EN:</span> </p>
-              <p id="res-desc-hi" class="text-[10px] text-gray-800 mb-1 leading-tight"><span class="font-bold">HI:</span> </p>
-              <p id="res-desc-ta" class="text-[10px] text-gray-800 leading-tight"><span class="font-bold">TA:</span> </p>
+              <p class="text-[9px] font-bold text-gray-500 uppercase mb-1">Generated Multi-Lingual SEO:</p>
+              <p id="res-desc-en" class="text-[10px] text-gray-800 mb-1 leading-tight"></p>
+              <p id="res-desc-hi" class="text-[10px] text-gray-800 mb-1 leading-tight"></p>
+              <p id="res-desc-ta" class="text-[10px] text-gray-800 leading-tight"></p>
             </div>
 
             <div class="text-xs space-y-1 text-gray-600">
@@ -101,7 +101,13 @@
       <div id="screen-5" class="screen pt-4 text-center">
         <div class="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto mb-2 shadow-lg">✓</div>
         <h2 class="text-base font-extrabold text-green-800 uppercase">Catalog Formatted</h2>
-        <p class="text-[10px] text-green-700 font-bold mb-4">ONDC-READY</p>
+        <p class="text-[10px] text-green-700 font-bold mb-4">ONDC-READY (Beckn Protocol)</p>
+        
+        <div class="text-left bg-[#1e1e1e] p-3 rounded-xl border border-gray-700 mb-6 overflow-hidden">
+          <p class="text-[9px] text-gray-400 font-mono mb-1">Generated Beckn Payload:</p>
+          <pre id="beckn-json" class="text-[9px] text-green-400 font-mono overflow-x-auto max-h-48"></pre>
+        </div>
+
         <button onclick="downloadPDF()" class="w-full mb-3 bg-white border-2 border-navy-900 text-navy-900 py-3.5 rounded-xl font-bold text-xs">📄 Download ONDC PDF Label</button>
         <button onclick="navigateTo('screen-1')" class="w-full bg-navy-900 text-white py-3.5 rounded-xl font-bold text-xs">Return to Dashboard</button>
       </div>
@@ -118,27 +124,46 @@
       if(id === 'screen-1') loadDashboard();
     }
 
+    // Compress image client-side before sending to serverless backend
     function handleImage(e) {
+      const file = e.target.files[0];
+      if (!file) return;
       const reader = new FileReader();
-      reader.onload = () => {
-        rawImageData = reader.result;
-        document.getElementById('preview-raw').src = rawImageData;
-        document.getElementById('preview-raw').classList.remove('hidden');
-        document.getElementById('preview-placeholder').classList.add('hidden');
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxDim = 800;
+          let w = img.width;
+          let h = img.height;
+          if (w > h && w > maxDim) { h *= maxDim / w; w = maxDim; }
+          else if (h > maxDim) { w *= maxDim / h; h = maxDim; }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          rawImageData = canvas.toDataURL('image/jpeg', 0.7); // Compressed base64
+          document.getElementById('preview-raw').src = rawImageData;
+          document.getElementById('preview-raw').classList.remove('hidden');
+          document.getElementById('preview-placeholder').classList.add('hidden');
+        };
+        img.src = event.target.result;
       };
-      if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
+      reader.readAsDataURL(file);
     }
 
     let recognition;
     let isRec = false;
-    if ('webkitSpeechRecognition' in window) {
-      recognition = new webkitSpeechRecognition();
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new Speech();
       recognition.lang = 'hi-IN';
       recognition.onresult = (ev) => document.getElementById('transcript').value = ev.results[0][0].transcript;
       recognition.onend = () => { isRec = false; document.getElementById('mic-btn').innerText = "🎙 Record Voice (Hindi)"; };
     }
+
     function toggleVoice() {
-      if (!recognition) return alert("Use Chrome!");
+      if (!recognition) return alert("Please open in Google Chrome for speech input.");
       if (isRec) recognition.stop();
       else { recognition.start(); isRec = true; document.getElementById('mic-btn').innerText = "Listening..."; }
     }
@@ -147,15 +172,20 @@
       navigateTo('screen-3');
       const transcript = document.getElementById('transcript').value;
       const artisan = document.getElementById('artisan-select').value;
+
       try {
         const res = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ transcript: transcript, artisan: artisan, rawImageBase64: rawImageData })
+          body: JSON.stringify({ transcript, artisan, rawImageBase64: rawImageData })
         });
+
         const data = await res.json();
+        if (!res.ok || data.error || !data.aiData) {
+          throw new Error(data.error || "The AI server returned an empty response. Please verify API keys in Vercel.");
+        }
+
         const ai = data.aiData;
-        
         currentItem = { title: ai.title, artisan: artisan, price: ai.suggestedPrice };
 
         document.getElementById('res-title').innerText = ai.title;
@@ -166,9 +196,27 @@
         document.getElementById('res-mat').innerText = `₹${ai.materialCost}`;
         document.getElementById('res-labour').innerText = `₹${ai.fairLabourValue} (${ai.laborHours} hrs)`;
         document.getElementById('res-price').innerText = `₹${ai.suggestedPrice}`;
-        document.getElementById('review-img').src = data.studioImage || rawImageData || 'https://via.placeholder.com/300';
+        document.getElementById('review-img').src = data.studioImage || rawImageData || 'https://via.placeholder.com/300?text=Craft+Image';
+
+        const becknPayload = {
+          context: { domain: "ONDC:RET10", version: "1.2.0" },
+          message: {
+            catalog: {
+              items: [{
+                descriptor: { name: ai.title, short_desc: ai.description_en },
+                price: { value: String(ai.suggestedPrice) },
+                tags: { fair_wage_protected: "true", labor_hours: ai.laborHours }
+              }]
+            }
+          }
+        };
+        document.getElementById('beckn-json').innerText = JSON.stringify(becknPayload, null, 2);
+
         navigateTo('screen-4');
-      } catch (err) { alert("Error: " + err.message); navigateTo('screen-2'); }
+      } catch (err) {
+        alert("Pipeline Notice: " + err.message);
+        navigateTo('screen-2');
+      }
     }
 
     function approveListing() {
@@ -183,7 +231,10 @@
       let html = '';
       if (catalog.length === 0) html = `<p class="text-xs text-gray-500">No crafts cataloged yet.</p>`;
       catalog.forEach(item => {
-        html += `<div class="bg-white p-3 rounded-xl border flex justify-between items-center mb-2"><div><p class="font-bold text-sm text-gray-800">${item.title}</p><p class="text-[10px] text-gray-500">${item.artisan} • ₹${item.price}</p></div><span class="bg-green-50 text-green-700 text-[10px] px-2 py-0.5 rounded font-bold border border-green-200">ONDC-READY</span></div>`;
+        html += `<div class="bg-white p-3 rounded-xl border flex justify-between items-center mb-2">
+          <div><p class="font-bold text-sm text-gray-800">${item.title}</p><p class="text-[10px] text-gray-500">${item.artisan} • ₹${item.price}</p></div>
+          <span class="bg-green-50 text-green-700 text-[10px] px-2 py-0.5 rounded font-bold border border-green-200">ONDC-READY</span>
+        </div>`;
       });
       document.getElementById('dashboard-list').innerHTML = html;
     }
