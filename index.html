@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kala-Mitra | Enterprise Artisan Workspace</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- PDF Generation Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
@@ -23,7 +25,6 @@
   
   <div class="w-full max-w-md bg-surface h-[100dvh] relative flex flex-col shadow-2xl overflow-hidden border-x border-gray-200">
     
-    <!-- Top Header -->
     <header class="bg-white p-4 flex justify-between items-center border-b border-gray-100 shadow-sm z-10">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 bg-brand text-white rounded-xl flex items-center justify-center font-black text-sm shadow-md">KM</div>
@@ -103,10 +104,9 @@
           <div>
             <span class="text-[10px] font-bold text-accent uppercase tracking-widest">Step 01</span>
             <h2 class="font-extrabold text-brand text-xl mt-1">Select the Creator</h2>
-            <p class="text-xs text-gray-500 mt-1 leading-relaxed">Link this product to a registered artisan to ensure MSME fair-wage tracking.</p>
           </div>
           <select id="catalog-artisan-select" class="w-full border-2 border-gray-200 rounded-xl p-3.5 text-sm font-semibold text-brand outline-none focus:border-accent bg-gray-50"></select>
-          <button onclick="nextStep(2)" class="w-full bg-brand text-white font-bold py-4 rounded-xl shadow-md hover:bg-gray-800 transition">Continue to Photo →</button>
+          <button onclick="nextStep(2)" class="w-full bg-brand text-white font-bold py-4 rounded-xl shadow-md">Continue to Photo →</button>
         </div>
 
         <!-- Step 2: Photo -->
@@ -114,7 +114,6 @@
            <div>
             <span class="text-[10px] font-bold text-accent uppercase tracking-widest">Step 02</span>
             <h2 class="font-extrabold text-brand text-xl mt-1">Capture the Craft</h2>
-            <p class="text-xs text-gray-500 mt-1 leading-relaxed">Take a photo. Our AI will automatically remove the background and apply studio lighting.</p>
           </div>
           <div class="relative w-full h-48 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 flex flex-col items-center justify-center overflow-hidden hover:border-accent transition">
             <input type="file" accept="image/*" onchange="handleImage(event)" class="absolute inset-0 opacity-0 cursor-pointer z-10">
@@ -124,10 +123,7 @@
               <p class="text-xs font-extrabold text-brand">Tap to upload photo</p>
             </div>
           </div>
-          <div class="flex gap-2">
-            <button onclick="nextStep(1)" class="w-1/3 bg-gray-100 text-gray-600 font-bold py-4 rounded-xl">Back</button>
-            <button onclick="nextStep(3)" class="w-2/3 bg-brand text-white font-bold py-4 rounded-xl shadow-md">Continue to Voice →</button>
-          </div>
+          <button onclick="nextStep(3)" class="w-full bg-brand text-white font-bold py-4 rounded-xl shadow-md">Continue to Voice →</button>
         </div>
 
         <!-- Step 3: Voice & AI -->
@@ -135,70 +131,77 @@
           <div>
             <span class="text-[10px] font-bold text-accent uppercase tracking-widest">Step 03</span>
             <h2 class="font-extrabold text-brand text-xl mt-1">Record the Details</h2>
-            <p class="text-xs text-gray-500 mt-1 leading-relaxed">Speak in the artisan's local language. Mention the craft name, material cost, and labor hours.</p>
           </div>
           
           <select id="voice-lang" class="w-full border-2 border-gray-100 rounded-xl p-3 text-xs font-bold text-gray-700 outline-none mb-2 bg-gray-50">
-            <option value="hi-IN">🎙 Input Language: Hindi (हिंदी)</option>
-            <option value="ta-IN">🎙 Input Language: Tamil (தமிழ்)</option>
-            <option value="en-IN">🎙 Input Language: English</option>
+            <option value="hi-IN">🎙 Input: Hindi (हिंदी)</option>
+            <option value="ta-IN">🎙 Input: Tamil (தமிழ்)</option>
+            <option value="en-IN">🎙 Input: English</option>
           </select>
 
           <div class="bg-white p-5 rounded-xl border border-gray-200 text-center shadow-inner">
             <button id="mic-btn" onclick="toggleVoice()" class="w-20 h-20 bg-surface text-accent rounded-full mb-4 mx-auto flex items-center justify-center text-3xl shadow-[0_0_15px_rgba(217,83,30,0.2)] border border-orange-100 transition-all">🎤</button>
-            <textarea id="transcript" class="w-full text-sm border-0 bg-transparent outline-none text-center font-medium text-brand resize-none" rows="3" placeholder="Tap the mic and start speaking..."></textarea>
+            <textarea id="transcript" class="w-full text-sm border-0 bg-transparent outline-none text-center font-medium text-brand resize-none" rows="3" placeholder="Speak craft details..."></textarea>
           </div>
 
-          <button onclick="runSecurePipeline()" class="w-full bg-accent text-white font-extrabold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 hover:bg-orange-700 transition">
-            ✨ Generate ONDC Catalog
+          <button onclick="runSecurePipeline()" class="w-full bg-accent text-white font-extrabold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2">
+            ✨ Evaluate Visuals & Voice
           </button>
         </div>
 
-        <!-- Step 4: Loading & Review -->
+        <!-- Step 4: Loading & Review (Contains Beckn & PDF) -->
         <div id="step-4" class="wizard-step bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
           <div id="ai-loading" class="text-center py-12">
             <div class="w-12 h-12 border-4 border-gray-100 border-t-accent rounded-full animate-spin mx-auto mb-4"></div>
-            <h3 class="text-sm font-extrabold text-brand">Orchestrating AI Pipeline...</h3>
-            <p class="text-[10px] text-gray-500 mt-2 font-semibold">Connecting securely to Vercel Backend</p>
+            <h3 class="text-sm font-extrabold text-brand">Vision AI Analyzing...</h3>
+            <p class="text-[10px] text-gray-500 mt-2 font-semibold">Scanning pixels & translating audio</p>
           </div>
           
-          <div id="ai-results" class="hidden space-y-5">
-            <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-               <h3 class="font-extrabold text-brand">Listing Preview</h3>
-               <span class="bg-blue-50 text-blue-700 text-[9px] font-black px-2 py-1 rounded uppercase tracking-wider border border-blue-100">ONDC Network</span>
-            </div>
+          <div id="ai-results" class="hidden space-y-4">
             
-            <img id="review-img" class="w-full h-48 object-contain bg-surface rounded-xl border border-gray-200 p-2 shadow-inner">
-            
-            <div>
-              <h3 id="res-title" class="font-black text-brand text-lg leading-tight"></h3>
+            <!-- PDF Content Area -->
+            <div id="pdf-content" class="bg-white pb-2">
+              <div class="flex justify-between items-end border-b border-gray-100 pb-2 mb-3">
+                <h3 class="font-extrabold text-brand">Final Listing</h3>
+                <img src="https://upload.wikimedia.org/wikipedia/en/thumb/0/01/ONDC_logo.svg/200px-ONDC_logo.svg.png" class="h-4 opacity-80" alt="ONDC">
+              </div>
               
-              <!-- Multi-Lingual SEO Block -->
-              <div class="bg-gray-50 p-2 rounded-md mt-2 border border-gray-100">
-                <p class="text-[9px] font-bold text-gray-500 uppercase mb-1">Generated SEO Descriptions:</p>
-                <p id="res-desc-en" class="text-[10px] text-gray-800 mb-1 leading-tight"></p>
-                <p id="res-desc-hi" class="text-[10px] text-gray-800 mb-1 leading-tight"></p>
-                <p id="res-desc-ta" class="text-[10px] text-gray-800 leading-tight"></p>
+              <img id="review-img" class="w-full h-48 object-contain bg-surface rounded-xl border border-gray-200 p-2 shadow-inner">
+              
+              <div class="mt-3">
+                <h3 id="res-title" class="font-black text-brand text-lg leading-tight"></h3>
+                <div class="bg-blue-50 p-2 rounded-lg mt-2 border border-blue-100">
+                  <p class="text-[9px] font-bold text-blue-700 uppercase tracking-widest mb-1">AI Visual & Context Description</p>
+                  <p id="res-desc-ai" class="text-xs text-gray-800 leading-relaxed font-medium"></p>
+                </div>
+              </div>
+              
+              <!-- Baseline Pricing Breakdown -->
+              <div class="bg-orange-50 p-4 rounded-xl border border-orange-200 text-xs shadow-sm mt-4">
+                <div class="flex items-center gap-1.5 mb-3">
+                  <span class="text-accent">⚖️</span>
+                  <p class="font-extrabold text-brand uppercase text-[10px] tracking-wider">Fair-Wage Recommendation</p>
+                </div>
+                <div class="space-y-2 text-gray-700 font-medium mb-3 pb-3 border-b border-orange-200">
+                  <div class="flex justify-between"><span>Material Cost:</span><span id="res-mat" class="font-bold"></span></div>
+                  <div class="flex justify-between"><span>Labor Valuation:</span><span id="res-labour" class="font-bold"></span></div>
+                  <div class="flex justify-between text-brand font-bold pt-1"><span>Baseline (Minimum):</span><span id="res-base"></span></div>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="font-bold text-brand">Final Recommendation (+20% margin):</span>
+                  <span id="res-price" class="text-lg font-black text-accent"></span>
+                </div>
               </div>
             </div>
-            
-            <div class="bg-orange-50 p-4 rounded-xl border border-orange-200 text-xs shadow-sm">
-              <div class="flex items-center gap-1.5 mb-3">
-                <span class="text-accent">⚖️</span>
-                <p class="font-extrabold text-brand uppercase text-[10px] tracking-wider">Fair-Wage Engine Output</p>
-              </div>
-              <div class="space-y-2 text-gray-700 font-medium mb-3 pb-3 border-b border-orange-200">
-                <div class="flex justify-between"><span>Raw Material Cost:</span><span id="res-mat" class="font-bold text-brand"></span></div>
-                <div class="flex justify-between"><span>Labor Valuation:</span><span id="res-labour" class="font-bold text-brand"></span></div>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="font-bold text-brand">Network Selling Price:</span>
-                <span id="res-price" class="text-lg font-black text-accent"></span>
-              </div>
+
+            <!-- Beckn Output -->
+            <div class="text-left bg-gray-900 p-3 rounded-xl border border-gray-800 mt-2">
+              <p class="text-[9px] text-gray-400 font-mono mb-1 font-bold">BECKN JSON SCHEMA (ONDC):</p>
+              <pre id="beckn-json" class="text-[9px] text-green-400 font-mono overflow-x-auto max-h-32"></pre>
             </div>
             
             <div class="flex gap-2 pt-2">
-              <button onclick="nextStep(3)" class="w-1/3 bg-white border-2 border-gray-200 text-gray-600 font-bold py-3.5 rounded-xl">Discard</button>
+              <button onclick="downloadPDF()" class="w-1/3 bg-white border-2 border-brand text-brand font-extrabold text-xs py-3.5 rounded-xl flex items-center justify-center gap-1">📄 PDF</button>
               <button onclick="approveCatalog()" class="w-2/3 bg-brand text-white font-extrabold py-3.5 rounded-xl shadow-lg">Approve & Publish</button>
             </div>
           </div>
@@ -208,7 +211,6 @@
       <!-- 4. LISTINGS VIEW -->
       <div id="view-listings" class="view space-y-4">
         <h2 class="text-xl font-extrabold text-brand mb-1">Active SKUs</h2>
-        <p class="text-[10px] text-gray-500 font-semibold uppercase mb-4">Items broadcasted to ONDC</p>
         <div id="catalog-list" class="space-y-3"></div>
       </div>
 
@@ -216,18 +218,10 @@
 
     <!-- Bottom Navigation Bar -->
     <nav class="bg-white border-t border-gray-200 flex justify-around p-2 pb-6 absolute bottom-0 w-full text-[10px] text-gray-400 font-semibold z-20 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
-      <button onclick="switchView('home')" id="nav-home" class="nav-item active flex flex-col items-center gap-1.5 w-1/4 pt-3">
-        <span class="text-lg mb-0.5">🏠</span> Home
-      </button>
-      <button onclick="switchView('catalog')" id="nav-catalog" class="nav-item flex flex-col items-center gap-1.5 w-1/4 pt-3">
-        <span class="text-lg mb-0.5">✨</span> Catalog
-      </button>
-      <button onclick="switchView('artisans')" id="nav-artisans" class="nav-item flex flex-col items-center gap-1.5 w-1/4 pt-3">
-        <span class="text-lg mb-0.5">👥</span> Artisans
-      </button>
-      <button onclick="switchView('listings')" id="nav-listings" class="nav-item flex flex-col items-center gap-1.5 w-1/4 pt-3">
-        <span class="text-lg mb-0.5">📦</span> Listings
-      </button>
+      <button onclick="switchView('home')" id="nav-home" class="nav-item active flex flex-col items-center gap-1.5 w-1/4 pt-3"><span class="text-lg mb-0.5">🏠</span> Home</button>
+      <button onclick="switchView('catalog')" id="nav-catalog" class="nav-item flex flex-col items-center gap-1.5 w-1/4 pt-3"><span class="text-lg mb-0.5">✨</span> Catalog</button>
+      <button onclick="switchView('artisans')" id="nav-artisans" class="nav-item flex flex-col items-center gap-1.5 w-1/4 pt-3"><span class="text-lg mb-0.5">👥</span> Artisans</button>
+      <button onclick="switchView('listings')" id="nav-listings" class="nav-item flex flex-col items-center gap-1.5 w-1/4 pt-3"><span class="text-lg mb-0.5">📦</span> Listings</button>
     </nav>
   </div>
 
@@ -235,25 +229,17 @@
     let rawImageData = null;
     let currentAIResult = {};
 
-    // 1. Data Management (Local Storage)
     function getArtisans() { return JSON.parse(localStorage.getItem('km_artisans') || '[]'); }
     function getCatalog() { return JSON.parse(localStorage.getItem('km_catalog') || '[]'); }
 
     function addArtisan() {
       const name = prompt("Enter Artisan Full Name:");
       if(!name) return;
-      const craft = prompt("Enter Main Craft Category (e.g., Terracotta, Textile):") || "General Craft";
-      // Auto-generate Unique ID
+      const craft = prompt("Enter Main Craft Category:") || "General Craft";
       const id = "ART-" + Math.floor(1000 + Math.random() * 9000);
-      
-      const artisans = getArtisans();
-      // Simulate Dual Support Logic
       const isBelowBaseline = Math.random() > 0.5;
-      artisans.push({ 
-        id, name, craft, 
-        status: isBelowBaseline ? 'Action Req' : 'Healthy',
-        isBelow: isBelowBaseline
-      });
+      const artisans = getArtisans();
+      artisans.push({ id, name, craft, status: isBelowBaseline ? 'Action Req' : 'Healthy', isBelow: isBelowBaseline });
       localStorage.setItem('km_artisans', JSON.stringify(artisans));
       renderArtisans();
     }
@@ -261,31 +247,21 @@
     function renderArtisans() {
       const artisans = getArtisans();
       document.getElementById('stat-artisans').innerText = artisans.length;
-      
-      let html = '';
-      let selectHtml = '<option value="">-- Select Registered Artisan --</option>';
-      
+      let html = ''; let selectHtml = '<option value="">-- Select Registered Artisan --</option>';
       if(artisans.length === 0) html = '<div class="text-center py-6 text-gray-400"><p class="text-xs font-bold">No artisans found.</p></div>';
       
       artisans.forEach(a => {
-        // Dual Support styling
         const statusColor = a.isBelow ? 'bg-red-50 text-red-700 border-red-200' : 'bg-green-50 text-green-700 border-green-200';
         const alertIcon = a.isBelow ? '⚠️ Below Living Wage (Govt Alert)' : '✓ MSME Verified';
-        
         html += `<div class="bg-white p-4 rounded-xl border border-gray-100 flex flex-col gap-2 shadow-sm">
           <div class="flex justify-between items-start">
-            <div>
-              <p class="font-extrabold text-sm text-brand">${a.name}</p>
-              <p class="text-[10px] text-gray-500 font-bold uppercase mt-0.5">${a.craft} • ID: ${a.id}</p>
-            </div>
+            <div><p class="font-extrabold text-sm text-brand">${a.name}</p><p class="text-[10px] text-gray-500 font-bold uppercase mt-0.5">${a.craft} • ID: ${a.id}</p></div>
             <span class="${statusColor} text-[9px] px-2 py-1 rounded font-black border uppercase tracking-wider">${a.status}</span>
-          </div>
-          <p class="text-[10px] ${a.isBelow ? 'text-red-500' : 'text-green-600'} font-bold">${alertIcon}</p>
+          </div><p class="text-[10px] ${a.isBelow ? 'text-red-500' : 'text-green-600'} font-bold">${alertIcon}</p>
         </div>`;
         selectHtml += `<option value="${a.name}">${a.name} (${a.id})</option>`;
       });
-      document.getElementById('artisan-list').innerHTML = html;
-      document.getElementById('catalog-artisan-select').innerHTML = selectHtml;
+      document.getElementById('artisan-list').innerHTML = html; document.getElementById('catalog-artisan-select').innerHTML = selectHtml;
     }
 
     function renderCatalog() {
@@ -296,17 +272,12 @@
       catalog.forEach(item => {
         html += `<div class="bg-white p-3 rounded-xl border border-gray-100 flex gap-4 items-center shadow-sm">
           <img src="${item.img || 'https://via.placeholder.com/50'}" class="w-16 h-16 rounded-lg object-cover border border-gray-200">
-          <div class="flex-1 overflow-hidden">
-            <p class="font-extrabold text-xs text-brand truncate">${item.title}</p>
-            <p class="text-[10px] text-gray-500 font-semibold mt-1">${item.artisan}</p>
-            <p class="text-xs font-black text-accent mt-1">₹${item.price}</p>
-          </div>
+          <div class="flex-1 overflow-hidden"><p class="font-extrabold text-xs text-brand truncate">${item.title}</p><p class="text-[10px] text-gray-500 font-semibold mt-1">${item.artisan}</p><p class="text-xs font-black text-accent mt-1">₹${item.price}</p></div>
         </div>`;
       });
       document.getElementById('catalog-list').innerHTML = html;
     }
 
-    // 2. Navigation & Wizard Logic
     function switchView(viewId) {
       document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -322,7 +293,6 @@
       document.getElementById(`tab-${stepNum}`).classList.add('text-brand');
     }
 
-    // 3. Image Capture & Compression (crucial for Vercel 4.5MB limit)
     function handleImage(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -331,14 +301,11 @@
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const maxDim = 800;
           let w = img.width, h = img.height;
-          if (w > h && w > maxDim) { h *= maxDim / w; w = maxDim; }
-          else if (h > maxDim) { w *= maxDim / h; h = maxDim; }
+          if (w > h && w > 800) { h *= 800 / w; w = 800; } else if (h > 800) { w *= 800 / h; h = 800; }
           canvas.width = w; canvas.height = h;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, w, h);
-          rawImageData = canvas.toDataURL('image/jpeg', 0.7); // Compressed base64
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          rawImageData = canvas.toDataURL('image/jpeg', 0.6);
           document.getElementById('preview-raw').src = rawImageData;
           document.getElementById('preview-raw').classList.remove('hidden');
           document.getElementById('preview-placeholder').classList.add('hidden');
@@ -348,91 +315,69 @@
       reader.readAsDataURL(file);
     }
 
-    // 4. Voice Input 
     let recognition; let isRec = false;
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognition = new Speech();
-      
-      recognition.onresult = (ev) => {
-        document.getElementById('transcript').value = ev.results[0][0].transcript;
-      };
-      recognition.onend = () => { 
-        isRec = false; 
-        const micBtn = document.getElementById('mic-btn');
-        micBtn.classList.remove('animate-pulse', 'bg-red-500', 'text-white');
-        micBtn.classList.add('bg-surface', 'text-accent');
-      };
+      recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.onresult = (ev) => document.getElementById('transcript').value = ev.results[0][0].transcript;
+      recognition.onend = () => { isRec = false; document.getElementById('mic-btn').classList.remove('animate-pulse', 'bg-red-500', 'text-white'); document.getElementById('mic-btn').classList.add('bg-surface', 'text-accent'); };
     }
     
     function toggleVoice() {
-      if (!recognition) return alert("Please open this app in Google Chrome to use voice features.");
-      if (isRec) {
-        recognition.stop();
-      } else {
+      if (!recognition) return alert("Please open this app in Chrome to use voice features.");
+      if (isRec) recognition.stop();
+      else {
         recognition.lang = document.getElementById('voice-lang').value;
-        recognition.start(); 
-        isRec = true; 
-        const micBtn = document.getElementById('mic-btn');
-        micBtn.classList.add('animate-pulse', 'bg-red-500', 'text-white');
-        micBtn.classList.remove('bg-surface', 'text-accent');
-        document.getElementById('transcript').value = '';
-        document.getElementById('transcript').placeholder = "Listening in " + recognition.lang + "...";
+        recognition.start(); isRec = true; 
+        document.getElementById('mic-btn').classList.add('animate-pulse', 'bg-red-500', 'text-white');
+        document.getElementById('mic-btn').classList.remove('bg-surface', 'text-accent');
       }
     }
 
-    // 5. Secure Backend API Call
     async function runSecurePipeline() {
       const artisan = document.getElementById('catalog-artisan-select').value;
-      if(!artisan) {
-        alert("Please select a registered artisan first.");
-        nextStep(1);
-        return;
-      }
-      
+      if(!artisan) return alert("Select an artisan first.");
       const transcript = document.getElementById('transcript').value;
-      if(!transcript) return alert("Please record or type product details before generating.");
+      if(!transcript && !rawImageData) return alert("Please provide a photo or voice note.");
 
       nextStep(4);
       document.getElementById('ai-loading').style.display = 'block';
       document.getElementById('ai-results').style.display = 'none';
 
       try {
-        // SECURE FETCH TO VERCEL BACKEND
         const res = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ transcript, artisan, rawImageBase64: rawImageData })
         });
-
         const data = await res.json();
-        if (!res.ok || data.error || !data.aiData) {
-          throw new Error(data.error || "The AI server encountered an issue.");
-        }
+        if (!res.ok || data.error) throw new Error(data.error);
 
         const ai = data.aiData;
         const finalImage = data.studioImage || rawImageData;
-        
-        currentAIResult = { title: ai.title, artisan, price: ai.suggestedPrice, img: finalImage };
+        currentAIResult = { title: ai.title, artisan, price: ai.finalPrice, img: finalImage };
 
         document.getElementById('res-title').innerText = ai.title;
-        
-        // Populate Multi-Lingual Descriptions safely
-        document.getElementById('res-desc-en').innerHTML = `<span class="font-bold">EN:</span> ${ai.description_en || ai.description || ''}`;
-        document.getElementById('res-desc-hi').innerHTML = `<span class="font-bold">HI:</span> ${ai.description_hi || ''}`;
-        document.getElementById('res-desc-ta').innerHTML = `<span class="font-bold">TA:</span> ${ai.description_ta || ''}`;
-        
+        document.getElementById('res-desc-ai').innerText = ai.description;
         document.getElementById('res-mat').innerText = `₹${ai.materialCost}`;
         document.getElementById('res-labour').innerText = `₹${ai.fairLabourValue} (${ai.laborHours} hrs)`;
-        document.getElementById('res-price').innerText = `₹${ai.suggestedPrice}`;
-        document.getElementById('review-img').src = finalImage || 'https://via.placeholder.com/400?text=No+Photo+Uploaded';
+        document.getElementById('res-base').innerText = `₹${ai.basePrice}`;
+        document.getElementById('res-price').innerText = `₹${ai.finalPrice}`;
+        document.getElementById('review-img').src = finalImage || 'https://via.placeholder.com/400';
+
+        const becknSchema = {
+          context: { domain: "ONDC:RET10", action: "catalog" },
+          message: { item: { descriptor: { name: ai.title, long_desc: ai.description }, price: { value: String(ai.finalPrice) }, tags: { msme_verified: true, base_price: ai.basePrice } } }
+        };
+        document.getElementById('beckn-json').innerText = JSON.stringify(becknSchema, null, 2);
 
         document.getElementById('ai-loading').style.display = 'none';
         document.getElementById('ai-results').style.display = 'block';
-      } catch (err) { 
-        alert("Pipeline Error: " + err.message); 
-        nextStep(3); 
-      }
+      } catch (err) { alert("Pipeline Error: " + err.message); nextStep(3); }
+    }
+
+    function downloadPDF() {
+      const element = document.getElementById('pdf-content');
+      html2pdf().from(element).save('ONDC_Catalog_Label.pdf');
     }
 
     function approveCatalog() {
@@ -441,16 +386,13 @@
       localStorage.setItem('km_catalog', JSON.stringify(catalog));
       renderCatalog();
       
-      // Clear inputs for the next item
       document.getElementById('transcript').value = '';
       document.getElementById('preview-raw').classList.add('hidden');
       document.getElementById('preview-placeholder').classList.remove('hidden');
       rawImageData = null;
-      
       switchView('listings');
     }
 
-    // Initialize app data on load
     window.onload = () => { renderArtisans(); renderCatalog(); };
   </script>
 </body>
