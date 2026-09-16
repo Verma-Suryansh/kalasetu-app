@@ -3,128 +3,326 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KALA-SETU | Prototype</title>
+  <title>Kala-Mitra | Enterprise Artisan Workspace</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
-      theme: { extend: { colors: { navy: { 900: '#0F2027', 700: '#1A365D' }, terracotta: { 500: '#D9531E', 600: '#C85A32' }, cream: '#FDFBF7' }, fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] } } }
+      theme: { extend: { colors: { brand: '#0F2027', accent: '#D9531E', surface: '#FDFBF7' }, fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] } } }
     }
   </script>
   <style>
-    .screen { display: none; }
-    .screen.active { display: block; animation: fadeIn 0.25s ease-in-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-    ::-webkit-scrollbar { width: 0; background: transparent; }
+    .view, .wizard-step { display: none; }
+    .view.active, .wizard-step.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .nav-item.active { color: #D9531E; font-weight: 800; border-top: 2px solid #D9531E; padding-top: 10px; margin-top: -12px; }
+    ::-webkit-scrollbar { display: none; }
   </style>
 </head>
-<body class="bg-gray-900 min-h-screen flex justify-center items-center font-sans antialiased">
-  <div class="w-full max-w-md bg-cream h-[100dvh] shadow-2xl relative flex flex-col overflow-y-auto">
-    <header class="bg-navy-900 text-white p-4 sticky top-0 z-20 shadow-md">
-      <div class="flex justify-between items-center">
+<body class="bg-gray-100 min-h-screen flex justify-center font-sans text-gray-800 selection:bg-accent selection:text-white">
+  
+  <div class="w-full max-w-md bg-surface h-[100dvh] relative flex flex-col shadow-2xl overflow-hidden border-x border-gray-200">
+    
+    <!-- Top Header -->
+    <header class="bg-white p-4 flex justify-between items-center border-b border-gray-100 shadow-sm z-10">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-brand text-white rounded-xl flex items-center justify-center font-black text-sm shadow-md">KM</div>
         <div>
-          <h1 class="text-xl font-extrabold tracking-wide">KALA-SETU</h1>
-          <p class="text-[10px] text-gray-300 uppercase font-semibold">Bridging Artisans to Markets</p>
+          <h1 class="font-extrabold text-brand text-sm tracking-wide">KALA-MITRA</h1>
+          <p class="text-[10px] text-gray-500 font-bold tracking-wider">REP ID: 884-INDORE</p>
         </div>
-        <span class="bg-white/10 text-[9px] px-2 py-0.5 rounded text-terracotta-500 font-bold border border-white/10">PROTOTYPE</span>
+      </div>
+      <div class="flex items-center gap-1.5 bg-green-50 px-2.5 py-1 rounded-md border border-green-200">
+        <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+        <span class="text-[9px] text-green-700 font-extrabold uppercase tracking-widest">Synced</span>
       </div>
     </header>
 
-    <main class="flex-1 p-4 pb-8">
-      <!-- SCREEN 1: DASHBOARD -->
-      <div id="screen-1" class="screen active">
-        <button onclick="navigateTo('screen-2')" class="w-full bg-terracotta-600 text-white font-bold py-4 rounded-xl shadow-md mb-6">+ Catalog New Craft</button>
-        <h3 class="text-xs font-bold text-gray-500 uppercase mb-3">Live Network Feed</h3>
-        <div id="dashboard-list" class="space-y-3"></div>
+    <main class="flex-1 overflow-y-auto pb-24 p-5">
+      
+      <!-- 1. DASHBOARD VIEW -->
+      <div id="view-home" class="view active space-y-5">
+        <div class="bg-brand text-white p-6 rounded-2xl shadow-lg relative overflow-hidden">
+          <div class="absolute -right-10 -top-10 w-32 h-32 bg-white opacity-5 rounded-full blur-2xl"></div>
+          <p class="text-[10px] text-blue-200 uppercase font-bold tracking-widest mb-1">Workspace</p>
+          <h2 class="text-2xl font-extrabold mb-2 leading-tight">Good morning,<br><span class="text-accent">Agent.</span></h2>
+          <p class="text-xs text-blue-100 mb-5 opacity-90 leading-relaxed">Turn a local craft into a digital story, a fair price, and a national ONDC opportunity.</p>
+          <button onclick="switchView('catalog')" class="bg-accent hover:bg-orange-700 transition text-white px-4 py-3 rounded-xl font-bold text-sm flex items-center gap-2 w-full justify-center shadow-md">
+            + Start Cataloging Workflow
+          </button>
+        </div>
+        
+        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xs font-extrabold text-brand uppercase tracking-wider">Cluster Impact</h3>
+            <span class="text-[10px] text-gray-400 font-semibold">Real-time</span>
+          </div>
+          <div class="grid grid-cols-2 gap-3 text-center mb-4">
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+              <p id="stat-artisans" class="text-2xl font-black text-brand">0</p>
+              <p class="text-[9px] text-gray-500 uppercase mt-1 font-bold">Total Artisans</p>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+              <p id="stat-skus" class="text-2xl font-black text-brand">0</p>
+              <p class="text-[9px] text-gray-500 uppercase mt-1 font-bold">Active SKUs</p>
+            </div>
+          </div>
+          <div class="bg-green-50 p-3 rounded-xl border border-green-100 flex items-center justify-between">
+            <div>
+              <p class="text-[10px] text-green-800 font-bold uppercase">Fair-Wage Compliance</p>
+              <p class="text-xs text-green-600 font-medium mt-0.5">Dual-Support active</p>
+            </div>
+            <span class="text-lg font-black text-green-700">100%</span>
+          </div>
+        </div>
       </div>
 
-      <!-- SCREEN 2: INGESTION -->
-      <div id="screen-2" class="screen">
-        <button onclick="navigateTo('screen-1')" class="text-xs font-bold text-navy-700 mb-4">← Back</button>
-        <div class="space-y-4">
-          <select id="artisan-select" class="w-full border rounded-xl p-3 text-sm outline-none">
-            <option value="Meera Bai (Bamboo Craft)">Meera Bai (Bamboo Craft)</option>
-            <option value="Sunita Devi (Textiles)">Sunita Devi (Textiles)</option>
-            <option value="Ramesh Lal (Pottery)">Ramesh Lal (Pottery)</option>
-          </select>
-          <div class="relative w-full h-36 border-2 border-dashed border-gray-300 rounded-xl bg-white flex flex-col items-center justify-center overflow-hidden">
+      <!-- 2. ARTISANS VIEW -->
+      <div id="view-artisans" class="view space-y-4">
+        <div class="flex justify-between items-center mb-2">
+          <div>
+            <h2 class="text-xl font-extrabold text-brand">Artisan Directory</h2>
+            <p class="text-[10px] text-gray-500 font-semibold uppercase">Manage & track MSME status</p>
+          </div>
+          <button onclick="addArtisan()" class="bg-brand text-white text-xs px-4 py-2 rounded-lg font-bold shadow-md hover:bg-gray-800">+ Add Artisan</button>
+        </div>
+        <div id="artisan-list" class="space-y-3"></div>
+      </div>
+
+      <!-- 3. CATALOGING WIZARD VIEW -->
+      <div id="view-catalog" class="view">
+        <div class="flex justify-between mb-6 border-b border-gray-200 pb-3 text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">
+          <span id="tab-1" class="text-brand">1. Identity</span>
+          <span id="tab-2">2. Visuals</span>
+          <span id="tab-3">3. Voice</span>
+          <span id="tab-4">4. Finalize</span>
+        </div>
+
+        <!-- Step 1: Artisan -->
+        <div id="step-1" class="wizard-step active space-y-5 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+          <div>
+            <span class="text-[10px] font-bold text-accent uppercase tracking-widest">Step 01</span>
+            <h2 class="font-extrabold text-brand text-xl mt-1">Select the Creator</h2>
+            <p class="text-xs text-gray-500 mt-1 leading-relaxed">Link this product to a registered artisan to ensure MSME fair-wage tracking.</p>
+          </div>
+          <select id="catalog-artisan-select" class="w-full border-2 border-gray-200 rounded-xl p-3.5 text-sm font-semibold text-brand outline-none focus:border-accent bg-gray-50"></select>
+          <button onclick="nextStep(2)" class="w-full bg-brand text-white font-bold py-4 rounded-xl shadow-md hover:bg-gray-800 transition">Continue to Photo →</button>
+        </div>
+
+        <!-- Step 2: Photo -->
+        <div id="step-2" class="wizard-step space-y-5 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+           <div>
+            <span class="text-[10px] font-bold text-accent uppercase tracking-widest">Step 02</span>
+            <h2 class="font-extrabold text-brand text-xl mt-1">Capture the Craft</h2>
+            <p class="text-xs text-gray-500 mt-1 leading-relaxed">Take a photo. Our AI will automatically remove the background and apply studio lighting.</p>
+          </div>
+          <div class="relative w-full h-48 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 flex flex-col items-center justify-center overflow-hidden hover:border-accent transition">
             <input type="file" accept="image/*" onchange="handleImage(event)" class="absolute inset-0 opacity-0 cursor-pointer z-10">
             <img id="preview-raw" class="hidden absolute inset-0 w-full h-full object-cover">
-            <p id="preview-placeholder" class="text-xs font-semibold text-gray-600">Tap to photograph handicraft</p>
-          </div>
-          <div class="bg-white p-3.5 rounded-xl border">
-            <button id="mic-btn" onclick="toggleVoice()" class="w-full mb-2 bg-red-50 text-red-600 font-bold py-2 rounded-lg text-xs">🎙 Record Voice (Hindi)</button>
-            <textarea id="transcript" class="w-full text-xs border rounded-lg p-2.5 bg-gray-50 outline-none" rows="3">Yeh bamboo ki tokri hai. 3 ghante lage aur raw material 150 rupaye ka laga.</textarea>
-          </div>
-          <button onclick="executeRealAI()" class="w-full bg-navy-900 text-white font-extrabold py-3.5 rounded-xl">RUN REAL AI PIPELINE →</button>
-        </div>
-      </div>
-
-      <!-- SCREEN 3: SPINNER -->
-      <div id="screen-3" class="screen text-center py-20">
-        <div class="w-14 h-14 border-4 border-gray-200 border-t-terracotta-600 rounded-full animate-spin mx-auto mb-4"></div>
-        <h3 class="font-extrabold text-navy-900 text-sm">Executing Multimodal AI Pipeline...</h3>
-        <p class="text-xs text-gray-500 mt-2">Processing via Groq Llama-3 & Vision Engine</p>
-      </div>
-
-      <!-- SCREEN 4: GENERATED LISTING REVIEW -->
-      <div id="screen-4" class="screen">
-        <div id="pdf-content" class="bg-white rounded-xl border border-gray-200 overflow-hidden mb-4 pb-2">
-          <div class="h-44 bg-gray-100 flex items-center justify-center">
-            <img id="review-img" class="w-full h-full object-contain p-2">
-          </div>
-          <div class="p-3">
-            <h3 id="res-title" class="font-bold text-sm text-gray-900"></h3>
-            <p id="res-meta" class="text-[10px] text-terracotta-600 font-semibold mb-2"></p>
-            
-            <div class="bg-gray-50 p-2 rounded-md mb-3 border border-gray-100">
-              <p class="text-[9px] font-bold text-gray-500 uppercase mb-1">Generated Multi-Lingual SEO:</p>
-              <p id="res-desc-en" class="text-[10px] text-gray-800 mb-1 leading-tight"></p>
-              <p id="res-desc-hi" class="text-[10px] text-gray-800 mb-1 leading-tight"></p>
-              <p id="res-desc-ta" class="text-[10px] text-gray-800 leading-tight"></p>
+            <div id="preview-placeholder" class="text-center">
+              <span class="text-3xl mb-2 block">📷</span>
+              <p class="text-xs font-extrabold text-brand">Tap to upload photo</p>
             </div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="nextStep(1)" class="w-1/3 bg-gray-100 text-gray-600 font-bold py-4 rounded-xl">Back</button>
+            <button onclick="nextStep(3)" class="w-2/3 bg-brand text-white font-bold py-4 rounded-xl shadow-md">Continue to Voice →</button>
+          </div>
+        </div>
 
-            <div class="text-xs space-y-1 text-gray-600">
-              <div class="flex justify-between"><span>Material Cost:</span><span id="res-mat"></span></div>
-              <div class="flex justify-between"><span>Labor Value:</span><span id="res-labour"></span></div>
-              <div class="flex justify-between font-extrabold text-navy-900 pt-1 border-t text-sm">
-                <span>ONDC Price:</span><span id="res-price" class="text-terracotta-600"></span>
+        <!-- Step 3: Voice & AI -->
+        <div id="step-3" class="wizard-step space-y-5 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+          <div>
+            <span class="text-[10px] font-bold text-accent uppercase tracking-widest">Step 03</span>
+            <h2 class="font-extrabold text-brand text-xl mt-1">Record the Details</h2>
+            <p class="text-xs text-gray-500 mt-1 leading-relaxed">Speak in the artisan's local language. Mention the craft name, material cost, and labor hours.</p>
+          </div>
+          
+          <select id="voice-lang" class="w-full border-2 border-gray-100 rounded-xl p-3 text-xs font-bold text-gray-700 outline-none mb-2 bg-gray-50">
+            <option value="hi-IN">🎙 Input Language: Hindi (हिंदी)</option>
+            <option value="ta-IN">🎙 Input Language: Tamil (தமிழ்)</option>
+            <option value="en-IN">🎙 Input Language: English</option>
+          </select>
+
+          <div class="bg-white p-5 rounded-xl border border-gray-200 text-center shadow-inner">
+            <button id="mic-btn" onclick="toggleVoice()" class="w-20 h-20 bg-surface text-accent rounded-full mb-4 mx-auto flex items-center justify-center text-3xl shadow-[0_0_15px_rgba(217,83,30,0.2)] border border-orange-100 transition-all">🎤</button>
+            <textarea id="transcript" class="w-full text-sm border-0 bg-transparent outline-none text-center font-medium text-brand resize-none" rows="3" placeholder="Tap the mic and start speaking..."></textarea>
+          </div>
+
+          <button onclick="runSecurePipeline()" class="w-full bg-accent text-white font-extrabold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 hover:bg-orange-700 transition">
+            ✨ Generate ONDC Catalog
+          </button>
+        </div>
+
+        <!-- Step 4: Loading & Review -->
+        <div id="step-4" class="wizard-step bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+          <div id="ai-loading" class="text-center py-12">
+            <div class="w-12 h-12 border-4 border-gray-100 border-t-accent rounded-full animate-spin mx-auto mb-4"></div>
+            <h3 class="text-sm font-extrabold text-brand">Orchestrating AI Pipeline...</h3>
+            <p class="text-[10px] text-gray-500 mt-2 font-semibold">Connecting securely to Vercel Backend</p>
+          </div>
+          
+          <div id="ai-results" class="hidden space-y-5">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+               <h3 class="font-extrabold text-brand">Listing Preview</h3>
+               <span class="bg-blue-50 text-blue-700 text-[9px] font-black px-2 py-1 rounded uppercase tracking-wider border border-blue-100">ONDC Network</span>
+            </div>
+            
+            <img id="review-img" class="w-full h-48 object-contain bg-surface rounded-xl border border-gray-200 p-2 shadow-inner">
+            
+            <div>
+              <h3 id="res-title" class="font-black text-brand text-lg leading-tight"></h3>
+              
+              <!-- Multi-Lingual SEO Block -->
+              <div class="bg-gray-50 p-2 rounded-md mt-2 border border-gray-100">
+                <p class="text-[9px] font-bold text-gray-500 uppercase mb-1">Generated SEO Descriptions:</p>
+                <p id="res-desc-en" class="text-[10px] text-gray-800 mb-1 leading-tight"></p>
+                <p id="res-desc-hi" class="text-[10px] text-gray-800 mb-1 leading-tight"></p>
+                <p id="res-desc-ta" class="text-[10px] text-gray-800 leading-tight"></p>
               </div>
             </div>
+            
+            <div class="bg-orange-50 p-4 rounded-xl border border-orange-200 text-xs shadow-sm">
+              <div class="flex items-center gap-1.5 mb-3">
+                <span class="text-accent">⚖️</span>
+                <p class="font-extrabold text-brand uppercase text-[10px] tracking-wider">Fair-Wage Engine Output</p>
+              </div>
+              <div class="space-y-2 text-gray-700 font-medium mb-3 pb-3 border-b border-orange-200">
+                <div class="flex justify-between"><span>Raw Material Cost:</span><span id="res-mat" class="font-bold text-brand"></span></div>
+                <div class="flex justify-between"><span>Labor Valuation:</span><span id="res-labour" class="font-bold text-brand"></span></div>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-brand">Network Selling Price:</span>
+                <span id="res-price" class="text-lg font-black text-accent"></span>
+              </div>
+            </div>
+            
+            <div class="flex gap-2 pt-2">
+              <button onclick="nextStep(3)" class="w-1/3 bg-white border-2 border-gray-200 text-gray-600 font-bold py-3.5 rounded-xl">Discard</button>
+              <button onclick="approveCatalog()" class="w-2/3 bg-brand text-white font-extrabold py-3.5 rounded-xl shadow-lg">Approve & Publish</button>
+            </div>
           </div>
         </div>
-        <button onclick="approveListing()" class="w-full bg-terracotta-600 text-white py-3 rounded-xl font-extrabold text-xs shadow-md">APPROVE & SAVE TO CATALOG</button>
       </div>
 
-      <!-- SCREEN 5: SUCCESS & PDF DOWNLOAD -->
-      <div id="screen-5" class="screen pt-4 text-center">
-        <div class="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto mb-2 shadow-lg">✓</div>
-        <h2 class="text-base font-extrabold text-green-800 uppercase">Catalog Formatted</h2>
-        <p class="text-[10px] text-green-700 font-bold mb-4">ONDC-READY (Beckn Protocol)</p>
-        
-        <div class="text-left bg-[#1e1e1e] p-3 rounded-xl border border-gray-700 mb-6 overflow-hidden">
-          <p class="text-[9px] text-gray-400 font-mono mb-1">Generated Beckn Payload:</p>
-          <pre id="beckn-json" class="text-[9px] text-green-400 font-mono overflow-x-auto max-h-48"></pre>
-        </div>
-
-        <button onclick="downloadPDF()" class="w-full mb-3 bg-white border-2 border-navy-900 text-navy-900 py-3.5 rounded-xl font-bold text-xs">📄 Download ONDC PDF Label</button>
-        <button onclick="navigateTo('screen-1')" class="w-full bg-navy-900 text-white py-3.5 rounded-xl font-bold text-xs">Return to Dashboard</button>
+      <!-- 4. LISTINGS VIEW -->
+      <div id="view-listings" class="view space-y-4">
+        <h2 class="text-xl font-extrabold text-brand mb-1">Active SKUs</h2>
+        <p class="text-[10px] text-gray-500 font-semibold uppercase mb-4">Items broadcasted to ONDC</p>
+        <div id="catalog-list" class="space-y-3"></div>
       </div>
+
     </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bg-white border-t border-gray-200 flex justify-around p-2 pb-6 absolute bottom-0 w-full text-[10px] text-gray-400 font-semibold z-20 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
+      <button onclick="switchView('home')" id="nav-home" class="nav-item active flex flex-col items-center gap-1.5 w-1/4 pt-3">
+        <span class="text-lg mb-0.5">🏠</span> Home
+      </button>
+      <button onclick="switchView('catalog')" id="nav-catalog" class="nav-item flex flex-col items-center gap-1.5 w-1/4 pt-3">
+        <span class="text-lg mb-0.5">✨</span> Catalog
+      </button>
+      <button onclick="switchView('artisans')" id="nav-artisans" class="nav-item flex flex-col items-center gap-1.5 w-1/4 pt-3">
+        <span class="text-lg mb-0.5">👥</span> Artisans
+      </button>
+      <button onclick="switchView('listings')" id="nav-listings" class="nav-item flex flex-col items-center gap-1.5 w-1/4 pt-3">
+        <span class="text-lg mb-0.5">📦</span> Listings
+      </button>
+    </nav>
   </div>
 
   <script>
     let rawImageData = null;
-    let currentItem = {};
+    let currentAIResult = {};
 
-    function navigateTo(id) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      if(id === 'screen-1') loadDashboard();
+    // 1. Data Management (Local Storage)
+    function getArtisans() { return JSON.parse(localStorage.getItem('km_artisans') || '[]'); }
+    function getCatalog() { return JSON.parse(localStorage.getItem('km_catalog') || '[]'); }
+
+    function addArtisan() {
+      const name = prompt("Enter Artisan Full Name:");
+      if(!name) return;
+      const craft = prompt("Enter Main Craft Category (e.g., Terracotta, Textile):") || "General Craft";
+      // Auto-generate Unique ID
+      const id = "ART-" + Math.floor(1000 + Math.random() * 9000);
+      
+      const artisans = getArtisans();
+      // Simulate Dual Support Logic
+      const isBelowBaseline = Math.random() > 0.5;
+      artisans.push({ 
+        id, name, craft, 
+        status: isBelowBaseline ? 'Action Req' : 'Healthy',
+        isBelow: isBelowBaseline
+      });
+      localStorage.setItem('km_artisans', JSON.stringify(artisans));
+      renderArtisans();
     }
 
-    // Compress image client-side before sending to serverless backend
+    function renderArtisans() {
+      const artisans = getArtisans();
+      document.getElementById('stat-artisans').innerText = artisans.length;
+      
+      let html = '';
+      let selectHtml = '<option value="">-- Select Registered Artisan --</option>';
+      
+      if(artisans.length === 0) html = '<div class="text-center py-6 text-gray-400"><p class="text-xs font-bold">No artisans found.</p></div>';
+      
+      artisans.forEach(a => {
+        // Dual Support styling
+        const statusColor = a.isBelow ? 'bg-red-50 text-red-700 border-red-200' : 'bg-green-50 text-green-700 border-green-200';
+        const alertIcon = a.isBelow ? '⚠️ Below Living Wage (Govt Alert)' : '✓ MSME Verified';
+        
+        html += `<div class="bg-white p-4 rounded-xl border border-gray-100 flex flex-col gap-2 shadow-sm">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="font-extrabold text-sm text-brand">${a.name}</p>
+              <p class="text-[10px] text-gray-500 font-bold uppercase mt-0.5">${a.craft} • ID: ${a.id}</p>
+            </div>
+            <span class="${statusColor} text-[9px] px-2 py-1 rounded font-black border uppercase tracking-wider">${a.status}</span>
+          </div>
+          <p class="text-[10px] ${a.isBelow ? 'text-red-500' : 'text-green-600'} font-bold">${alertIcon}</p>
+        </div>`;
+        selectHtml += `<option value="${a.name}">${a.name} (${a.id})</option>`;
+      });
+      document.getElementById('artisan-list').innerHTML = html;
+      document.getElementById('catalog-artisan-select').innerHTML = selectHtml;
+    }
+
+    function renderCatalog() {
+      const catalog = getCatalog();
+      document.getElementById('stat-skus').innerText = catalog.length;
+      let html = '';
+      if(catalog.length === 0) html = '<div class="text-center py-6 text-gray-400"><p class="text-xs font-bold">No cataloged items yet.</p></div>';
+      catalog.forEach(item => {
+        html += `<div class="bg-white p-3 rounded-xl border border-gray-100 flex gap-4 items-center shadow-sm">
+          <img src="${item.img || 'https://via.placeholder.com/50'}" class="w-16 h-16 rounded-lg object-cover border border-gray-200">
+          <div class="flex-1 overflow-hidden">
+            <p class="font-extrabold text-xs text-brand truncate">${item.title}</p>
+            <p class="text-[10px] text-gray-500 font-semibold mt-1">${item.artisan}</p>
+            <p class="text-xs font-black text-accent mt-1">₹${item.price}</p>
+          </div>
+        </div>`;
+      });
+      document.getElementById('catalog-list').innerHTML = html;
+    }
+
+    // 2. Navigation & Wizard Logic
+    function switchView(viewId) {
+      document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.getElementById(`view-${viewId}`).classList.add('active');
+      document.getElementById(`nav-${viewId}`).classList.add('active');
+      if(viewId === 'catalog') nextStep(1);
+    }
+
+    function nextStep(stepNum) {
+      document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('[id^="tab-"]').forEach(el => el.classList.remove('text-brand'));
+      document.getElementById(`step-${stepNum}`).classList.add('active');
+      document.getElementById(`tab-${stepNum}`).classList.add('text-brand');
+    }
+
+    // 3. Image Capture & Compression (crucial for Vercel 4.5MB limit)
     function handleImage(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -134,12 +332,10 @@
         img.onload = () => {
           const canvas = document.createElement('canvas');
           const maxDim = 800;
-          let w = img.width;
-          let h = img.height;
+          let w = img.width, h = img.height;
           if (w > h && w > maxDim) { h *= maxDim / w; w = maxDim; }
           else if (h > maxDim) { w *= maxDim / h; h = maxDim; }
-          canvas.width = w;
-          canvas.height = h;
+          canvas.width = w; canvas.height = h;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, w, h);
           rawImageData = canvas.toDataURL('image/jpeg', 0.7); // Compressed base64
@@ -152,28 +348,57 @@
       reader.readAsDataURL(file);
     }
 
-    let recognition;
-    let isRec = false;
+    // 4. Voice Input 
+    let recognition; let isRec = false;
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognition = new Speech();
-      recognition.lang = 'hi-IN';
-      recognition.onresult = (ev) => document.getElementById('transcript').value = ev.results[0][0].transcript;
-      recognition.onend = () => { isRec = false; document.getElementById('mic-btn').innerText = "🎙 Record Voice (Hindi)"; };
+      
+      recognition.onresult = (ev) => {
+        document.getElementById('transcript').value = ev.results[0][0].transcript;
+      };
+      recognition.onend = () => { 
+        isRec = false; 
+        const micBtn = document.getElementById('mic-btn');
+        micBtn.classList.remove('animate-pulse', 'bg-red-500', 'text-white');
+        micBtn.classList.add('bg-surface', 'text-accent');
+      };
     }
-
+    
     function toggleVoice() {
-      if (!recognition) return alert("Please open in Google Chrome for speech input.");
-      if (isRec) recognition.stop();
-      else { recognition.start(); isRec = true; document.getElementById('mic-btn').innerText = "Listening..."; }
+      if (!recognition) return alert("Please open this app in Google Chrome to use voice features.");
+      if (isRec) {
+        recognition.stop();
+      } else {
+        recognition.lang = document.getElementById('voice-lang').value;
+        recognition.start(); 
+        isRec = true; 
+        const micBtn = document.getElementById('mic-btn');
+        micBtn.classList.add('animate-pulse', 'bg-red-500', 'text-white');
+        micBtn.classList.remove('bg-surface', 'text-accent');
+        document.getElementById('transcript').value = '';
+        document.getElementById('transcript').placeholder = "Listening in " + recognition.lang + "...";
+      }
     }
 
-    async function executeRealAI() {
-      navigateTo('screen-3');
+    // 5. Secure Backend API Call
+    async function runSecurePipeline() {
+      const artisan = document.getElementById('catalog-artisan-select').value;
+      if(!artisan) {
+        alert("Please select a registered artisan first.");
+        nextStep(1);
+        return;
+      }
+      
       const transcript = document.getElementById('transcript').value;
-      const artisan = document.getElementById('artisan-select').value;
+      if(!transcript) return alert("Please record or type product details before generating.");
+
+      nextStep(4);
+      document.getElementById('ai-loading').style.display = 'block';
+      document.getElementById('ai-results').style.display = 'none';
 
       try {
+        // SECURE FETCH TO VERCEL BACKEND
         const res = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -182,69 +407,51 @@
 
         const data = await res.json();
         if (!res.ok || data.error || !data.aiData) {
-          throw new Error(data.error || "The AI server returned an empty response. Please verify API keys in Vercel.");
+          throw new Error(data.error || "The AI server encountered an issue.");
         }
 
         const ai = data.aiData;
-        currentItem = { title: ai.title, artisan: artisan, price: ai.suggestedPrice };
+        const finalImage = data.studioImage || rawImageData;
+        
+        currentAIResult = { title: ai.title, artisan, price: ai.suggestedPrice, img: finalImage };
 
         document.getElementById('res-title').innerText = ai.title;
-        document.getElementById('res-meta').innerText = `${ai.category} • ${artisan}`;
-        document.getElementById('res-desc-en').innerHTML = `<span class="font-bold">EN:</span> ${ai.description_en}`;
-        document.getElementById('res-desc-hi').innerHTML = `<span class="font-bold">HI:</span> ${ai.description_hi}`;
-        document.getElementById('res-desc-ta').innerHTML = `<span class="font-bold">TA:</span> ${ai.description_ta}`;
+        
+        // Populate Multi-Lingual Descriptions safely
+        document.getElementById('res-desc-en').innerHTML = `<span class="font-bold">EN:</span> ${ai.description_en || ai.description || ''}`;
+        document.getElementById('res-desc-hi').innerHTML = `<span class="font-bold">HI:</span> ${ai.description_hi || ''}`;
+        document.getElementById('res-desc-ta').innerHTML = `<span class="font-bold">TA:</span> ${ai.description_ta || ''}`;
+        
         document.getElementById('res-mat').innerText = `₹${ai.materialCost}`;
         document.getElementById('res-labour').innerText = `₹${ai.fairLabourValue} (${ai.laborHours} hrs)`;
         document.getElementById('res-price').innerText = `₹${ai.suggestedPrice}`;
-        document.getElementById('review-img').src = data.studioImage || rawImageData || 'https://via.placeholder.com/300?text=Craft+Image';
+        document.getElementById('review-img').src = finalImage || 'https://via.placeholder.com/400?text=No+Photo+Uploaded';
 
-        const becknPayload = {
-          context: { domain: "ONDC:RET10", version: "1.2.0" },
-          message: {
-            catalog: {
-              items: [{
-                descriptor: { name: ai.title, short_desc: ai.description_en },
-                price: { value: String(ai.suggestedPrice) },
-                tags: { fair_wage_protected: "true", labor_hours: ai.laborHours }
-              }]
-            }
-          }
-        };
-        document.getElementById('beckn-json').innerText = JSON.stringify(becknPayload, null, 2);
-
-        navigateTo('screen-4');
-      } catch (err) {
-        alert("Pipeline Notice: " + err.message);
-        navigateTo('screen-2');
+        document.getElementById('ai-loading').style.display = 'none';
+        document.getElementById('ai-results').style.display = 'block';
+      } catch (err) { 
+        alert("Pipeline Error: " + err.message); 
+        nextStep(3); 
       }
     }
 
-    function approveListing() {
-      let catalog = JSON.parse(localStorage.getItem('kalasetu_catalog') || '[]');
-      catalog.unshift(currentItem);
-      localStorage.setItem('kalasetu_catalog', JSON.stringify(catalog));
-      navigateTo('screen-5');
+    function approveCatalog() {
+      const catalog = getCatalog();
+      catalog.unshift(currentAIResult);
+      localStorage.setItem('km_catalog', JSON.stringify(catalog));
+      renderCatalog();
+      
+      // Clear inputs for the next item
+      document.getElementById('transcript').value = '';
+      document.getElementById('preview-raw').classList.add('hidden');
+      document.getElementById('preview-placeholder').classList.remove('hidden');
+      rawImageData = null;
+      
+      switchView('listings');
     }
 
-    function loadDashboard() {
-      let catalog = JSON.parse(localStorage.getItem('kalasetu_catalog') || '[]');
-      let html = '';
-      if (catalog.length === 0) html = `<p class="text-xs text-gray-500">No crafts cataloged yet.</p>`;
-      catalog.forEach(item => {
-        html += `<div class="bg-white p-3 rounded-xl border flex justify-between items-center mb-2">
-          <div><p class="font-bold text-sm text-gray-800">${item.title}</p><p class="text-[10px] text-gray-500">${item.artisan} • ₹${item.price}</p></div>
-          <span class="bg-green-50 text-green-700 text-[10px] px-2 py-0.5 rounded font-bold border border-green-200">ONDC-READY</span>
-        </div>`;
-      });
-      document.getElementById('dashboard-list').innerHTML = html;
-    }
-
-    function downloadPDF() {
-      const element = document.getElementById('pdf-content');
-      html2pdf().from(element).save('ONDC_Catalog_Label.pdf');
-    }
-
-    window.onload = loadDashboard;
+    // Initialize app data on load
+    window.onload = () => { renderArtisans(); renderCatalog(); };
   </script>
 </body>
 </html>
