@@ -6,89 +6,96 @@ export default async function handler(req, res) {
   const REMOVE_BG_API_KEY = process.env.REMOVE_BG_API_KEY;
 
   try {
-    let messageContent = [
-      {
-        type: "text",
-        text: `You are an expert ONDC Cataloging AI. Analyze this craft visually AND the artisan's regional voice transcript: "${transcript || 'No voice provided'}".
-        1. Translate regional audio to English.
-        2. Write a professional English e-commerce title.
-        3. Write a 2-sentence English SEO description describing visual details and the story.
-        4. STRICT EXTRACTION: Extract materialCost and laborHours. If the user does not explicitly state a number for hours, you MUST default laborHours to 3. Do not invent or guess hours. If material cost is not stated, default to 150.
-        5. Calculate: fairLabourValue = laborHours * 150. baseRecommendation = materialCost + fairLabourValue. finalONDCPrice = baseRecommendation + Math.round(baseRecommendation * 0.20).
-        Output STRICTLY raw JSON (no markdown blocks):
-        {"title":"","description":"","materialCost":0,"laborHours":0,"fairLabourValue":0,"baseRecommendation":0,"finalONDCPrice":0}`
-      }
-    ];
+    // We use Llama-3.1-70b as it is the most stable and intelligent model for strict JSON
+    const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: "llama-3.1-70b-versatile",
+        messages: [{
+          role: "system",
+          content: `You are a premium ONDC e-commerce cataloging engine. 
+          Read this regional transcript from the artisan: "${transcript || 'Handmade craft'}".
+          
+          TASK:
+          1. Translate to English.
+          2. Create a premium E-commerce Title.
+          3. Write a rich, engaging paragraph describing the craft, its cultural heritage, and visual appeal.
+          4. Create an array of 3 short, punchy bullet points (e.g., "Handwoven using natural fibers").
+          5. EXTRACT TIME: Extract the number for time taken. Extract the unit exactly as "days" or "hours". (Default to 3 and "hours" if not stated).
+          6. EXTRACT MATERIAL COST: Extract the raw material cost in INR. (Default to 150 if not stated).
+          
+          OUTPUT STRICTLY RAW JSON:
+          {
+            "title": "",
+            "description": "",
+            "bulletPoints": ["", "", ""],
+            "extracted_time_value": 0,
+            "extracted_time_unit": "",
+            "extracted_material_cost": 0
+          }`
+        }],
+        temperature: 0.1
+      })
+    });
 
-    if (rawImageBase64) {
-      const cleanBase64 = rawImageBase64.replace(/^data:image\/\w+;base64,/, "");
-      messageContent.push({
-        type: "image_url",
-        image_url: { url: `data:image/jpeg;base64,${cleanBase64}` }
-      });
+    if (!groqResponse.ok) throw new Error("AI Processing Failed");
+    const groqData = await groqResponse.json();
+    
+    // Clean and parse JSON
+    let content = groqData.choices[0].message.content.replace(/```json/gi, '').replace(/```/g, '').trim();
+    const start = content.indexOf('{');
+    const end = content.lastIndexOf('}');
+    const aiData = JSON.parse(content.substring(start, end + 1));
+
+    // ==========================================
+    // DETERMINISTIC MATH ENGINE (Never Fails)
+    // ==========================================
+    let actualLaborHours = aiData.extracted_time_value;
+    if (aiData.extracted_time_unit.toLowerCase().includes("day")) {
+        actualLaborHours = actualLaborHours * 8; // 1 Day = 8 Hours
     }
 
-    // Failsafe JSON extractor
-    const extractJSON = (text) => {
-      let content = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-      const start = content.indexOf('{');
-      const end = content.lastIndexOf('}');
-      if (start !== -1 && end !== -1) return JSON.parse(content.substring(start, end + 1));
-      return JSON.parse(content);
+    const materialCost = aiData.extracted_material_cost;
+    const fairLabourValue = actualLaborHours * 150; // ₹150 per hour baseline
+    const baseRecommendation = materialCost + fairLabourValue;
+    const finalONDCPrice = baseRecommendation + Math.round(baseRecommendation * 0.20); // 20% default margin
+
+    // Compile final calculated data
+    const finalPayload = {
+        title: aiData.title,
+        description: aiData.description,
+        bulletPoints: aiData.bulletPoints,
+        materialCost: materialCost,
+        laborHours: actualLaborHours,
+        fairLabourValue: fairLabourValue,
+        baseRecommendation: baseRecommendation,
+        finalONDCPrice: finalONDCPrice
     };
 
-    let ai;
-    try {
-      // ATTEMPT 1: Active Multimodal Vision Model (Verified)
-      const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: "qwen/qwen3.8-27b",
-          messages: [{ role: "user", content: messageContent }],
-          temperature: 0.2
-        })
-      });
-
-      if (!groqResponse.ok) throw new Error("Vision model failed");
-      const groqData = await groqResponse.json();
-      ai = extractJSON(groqData.choices[0].message.content);
-
-    } catch (visionError) {
-      // ATTEMPT 2: Active Text-Only Fallback (Verified)
-      console.warn("Falling back to text model...");
-      const fallbackResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: "openai/gpt-oss-20b", 
-          messages: [{ role: "user", content: messageContent[0].text }],
-          temperature: 0.2
-        })
-      });
-      
-      const fallbackData = await fallbackResponse.json();
-      if (!fallbackResponse.ok) throw new Error("All AI models failed. Please check Groq API limits.");
-      ai = extractJSON(fallbackData.choices[0].message.content);
-    }
-
-    // Background Removal Polish
+    // ==========================================
+    // BACKGROUND REMOVAL (Simulating BiRefNet)
+    // ==========================================
     let studioImage = null;
     if (rawImageBase64 && REMOVE_BG_API_KEY) {
       try {
         const bgRes = await fetch('https://api.remove.bg/v1.0/removebg', {
           method: 'POST',
           headers: { 'X-Api-Key': REMOVE_BG_API_KEY, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image_file_b64: rawImageBase64.replace(/^data:image\/\w+;base64,/, ""), size: 'preview' })
+          body: JSON.stringify({ 
+            image_file_b64: rawImageBase64.replace(/^data:image\/\w+;base64,/, ""), 
+            size: 'preview' 
+            // NOTE: No bg_color parameter, so it returns transparent!
+          })
         });
         if (bgRes.ok) {
           const buffer = await bgRes.arrayBuffer();
           studioImage = `data:image/png;base64,${Buffer.from(buffer).toString('base64')}`;
         }
-      } catch (e) {}
+      } catch (e) { console.error("RemoveBG Error"); }
     }
 
-    return res.status(200).json({ aiData: ai, studioImage: studioImage });
+    return res.status(200).json({ aiData: finalPayload, studioImage: studioImage });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
