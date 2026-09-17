@@ -18,12 +18,27 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     .nav-item.active { color: #D9531E; font-weight: 800; border-top: 2px solid #D9531E; padding-top: 10px; margin-top: -12px; }
     ::-webkit-scrollbar { display: none; }
+    
+    /* True Studio Composite Effect */
+    .studio-backdrop {
+        background-image: url('https://images.unsplash.com/photo-1600607686527-6fb886090705?q=80&w=1000&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+    .studio-backdrop::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(240,235,225,0.95) 100%);
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex justify-center font-sans text-gray-800">
   
   <div class="w-full max-w-md bg-surface h-[100dvh] relative flex flex-col shadow-2xl overflow-hidden border-x border-gray-200">
     
+    <!-- HEADER WITH OFFLINE SYNC TOGGLE -->
     <header class="bg-white p-4 flex justify-between items-center border-b border-gray-100 shadow-sm z-10">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 bg-brand text-white rounded-xl flex items-center justify-center font-black text-sm shadow-md">KM</div>
@@ -32,9 +47,15 @@
           <p class="text-[10px] text-gray-500 font-bold tracking-wider">REP ID: 884-INDORE</p>
         </div>
       </div>
-      <div class="flex items-center gap-1.5 bg-green-50 px-2.5 py-1 rounded-md border border-green-200">
-        <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-        <span class="text-[9px] text-green-700 font-extrabold uppercase tracking-widest">Synced</span>
+      <div class="flex flex-col items-end gap-1">
+        <div class="flex items-center gap-1.5 bg-green-50 px-2 py-1 rounded-md border border-green-200" id="sync-badge">
+          <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" id="sync-dot"></div>
+          <span class="text-[8px] text-green-700 font-extrabold uppercase tracking-widest" id="sync-text">Online</span>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer mt-1">
+          <input type="checkbox" checked class="sr-only peer" onchange="toggleSync(this)">
+          <div class="w-6 h-3 bg-gray-300 rounded-full peer peer-checked:bg-brand transition-all after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-2.5 after:w-2.5 after:transition-all peer-checked:after:translate-x-3"></div>
+        </label>
       </div>
     </header>
 
@@ -57,7 +78,7 @@
           </div>
           <div class="grid grid-cols-2 gap-3 text-center mb-4">
             <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
-              <p id="stat-artisans" class="text-2xl font-black text-brand">0</p>
+              <p id="stat-artisans" class="text-2xl font-black text-brand">3</p>
               <p class="text-[9px] text-gray-500 uppercase mt-1 font-bold">Total Artisans</p>
             </div>
             <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
@@ -68,15 +89,31 @@
         </div>
       </div>
 
-      <!-- ARTISANS -->
+      <!-- ARTISANS DIRECTORY -->
       <div id="view-artisans" class="view space-y-4">
         <div class="flex justify-between items-center mb-2">
           <div>
             <h2 class="text-xl font-extrabold text-brand">Artisan Directory</h2>
             <p class="text-[10px] text-gray-500 font-semibold uppercase">Manage & track MSME status</p>
           </div>
-          <button onclick="addArtisan()" class="bg-brand text-white text-xs px-4 py-2 rounded-lg font-bold shadow-md hover:bg-gray-800">+ Add</button>
+          <button onclick="toggleAddArtisanForm()" class="bg-brand text-white text-xs px-4 py-2 rounded-lg font-bold shadow-md hover:bg-gray-800">+ Add</button>
         </div>
+
+        <!-- NEW: Inline Add Artisan Form -->
+        <div id="add-artisan-form" class="hidden bg-white p-5 rounded-2xl border border-gray-200 shadow-sm mb-4 space-y-3">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-accent text-lg">👤</span>
+            <h3 class="text-sm font-extrabold text-brand">Register New Artisan</h3>
+          </div>
+          <input id="new-art-name" type="text" placeholder="Full Name (e.g., Meera Bai)" class="w-full text-xs p-3.5 rounded-xl border border-gray-200 outline-none focus:border-accent bg-gray-50">
+          <input id="new-art-phone" type="tel" placeholder="Phone No. (e.g., +91 987654...)" class="w-full text-xs p-3.5 rounded-xl border border-gray-200 outline-none focus:border-accent bg-gray-50">
+          <input id="new-art-craft" type="text" placeholder="Primary Craft (e.g., Pottery)" class="w-full text-xs p-3.5 rounded-xl border border-gray-200 outline-none focus:border-accent bg-gray-50">
+          <div class="flex gap-2 pt-2">
+            <button onclick="toggleAddArtisanForm()" class="w-1/3 bg-gray-100 text-gray-600 text-xs font-bold py-3 rounded-xl border border-gray-200">Cancel</button>
+            <button onclick="submitArtisan()" class="w-2/3 bg-accent text-white text-xs font-bold py-3 rounded-xl shadow-md">Save to Cluster</button>
+          </div>
+        </div>
+
         <div id="artisan-list" class="space-y-3"></div>
       </div>
 
@@ -116,18 +153,18 @@
             <option value="en-IN">🎙 Input: English</option>
           </select>
           <div class="bg-white p-5 rounded-xl border border-gray-200 text-center shadow-inner">
-            <button id="mic-btn" onclick="toggleVoice()" class="w-20 h-20 bg-surface text-accent rounded-full mb-4 mx-auto flex items-center justify-center text-3xl border border-orange-100">🎤</button>
-            <textarea id="transcript" class="w-full text-sm border-0 bg-transparent outline-none text-center font-medium text-brand resize-none" rows="3" placeholder="Speak craft details..."></textarea>
+            <button id="mic-btn" onclick="toggleVoice()" class="w-20 h-20 bg-surface text-accent rounded-full mb-4 mx-auto flex items-center justify-center text-3xl border border-orange-100 shadow-sm">🎤</button>
+            <textarea id="transcript" class="w-full text-sm border-0 bg-transparent outline-none text-center font-medium text-brand resize-none" rows="3" placeholder="Speak details (e.g. 'Took 4 days and 100 rupees material')..."></textarea>
           </div>
           <button onclick="runSecurePipeline()" class="w-full bg-accent text-white font-extrabold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2">✨ Evaluate Visuals & Voice</button>
         </div>
 
-        <!-- Step 4 (FIXED) -->
+        <!-- Step 4 -->
         <div id="step-4" class="wizard-step bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
           <div id="ai-loading" class="text-center py-12">
             <div class="w-12 h-12 border-4 border-gray-100 border-t-accent rounded-full animate-spin mx-auto mb-4"></div>
-            <h3 class="text-sm font-extrabold text-brand">Vision AI Analyzing...</h3>
-            <p class="text-[10px] text-gray-500 mt-2 font-semibold">Scanning pixels & calculating fair wage</p>
+            <h3 class="text-sm font-extrabold text-brand">AI Pipeline Running...</h3>
+            <p class="text-[10px] text-gray-500 mt-2 font-semibold">Extracting logic & compositing studio render</p>
           </div>
           
           <div id="ai-results" class="hidden space-y-4">
@@ -137,40 +174,38 @@
                 <span class="bg-blue-50 text-blue-700 text-[9px] font-black px-2 py-1 rounded uppercase tracking-wider border border-blue-100">ONDC Network</span>
               </div>
               
-              <!-- CSS Studio Background Effect -->
-              <div class="w-full h-56 rounded-xl border border-gray-200 p-4 shadow-inner bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white via-gray-100 to-gray-200 flex items-center justify-center">
-                <img id="review-img" class="max-w-full max-h-full object-contain drop-shadow-[0_20px_20px_rgba(0,0,0,0.3)]">
+              <!-- TRUE STUDIO COMPOSITE -->
+              <div class="w-full h-64 rounded-xl border border-gray-200 shadow-inner overflow-hidden studio-backdrop flex items-center justify-center">
+                <img id="review-img" class="relative z-10 max-w-[85%] max-h-[85%] object-contain drop-shadow-[0_25px_25px_rgba(0,0,0,0.4)]">
               </div>
               
-              <div class="mt-3">
-                <h3 id="res-title" class="font-black text-brand text-lg leading-tight"></h3>
-                <div class="bg-gray-50 p-3 rounded-lg mt-3 border border-gray-100">
-                  <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1">Generated English SEO</p>
-                  <p id="res-desc-ai" class="text-xs text-gray-800 leading-relaxed font-medium"></p>
-                </div>
+              <!-- PREMIUM E-COMMERCE DESCRIPTION -->
+              <div class="mt-4">
+                <h3 id="res-title" class="font-black text-brand text-xl leading-tight mb-2"></h3>
+                <p id="res-desc-ai" class="text-sm text-gray-700 leading-relaxed font-medium mb-3"></p>
+                <ul id="res-bullets" class="list-disc pl-5 text-xs text-gray-600 space-y-1 font-medium"></ul>
               </div>
               
-              <!-- Editable Pricing Engine -->
-              <div class="bg-orange-50 p-4 rounded-xl border border-orange-200 text-xs shadow-sm mt-4">
-                <div class="flex items-center gap-1.5 mb-3"><span class="text-accent">⚖️</span><p class="font-extrabold text-brand uppercase text-[10px] tracking-wider">Fair-Wage Recommendation</p></div>
+              <!-- DETERMINISTIC PRICING ENGINE -->
+              <div class="bg-orange-50 p-4 rounded-xl border border-orange-200 text-xs shadow-sm mt-5">
+                <div class="flex items-center gap-1.5 mb-3"><span class="text-accent">⚖️</span><p class="font-extrabold text-brand uppercase text-[10px] tracking-wider">Fair-Wage Calculation Engine</p></div>
                 <div class="space-y-2 text-gray-700 font-medium mb-3 pb-3 border-b border-orange-200">
                   <div class="flex justify-between"><span>Material Cost:</span><span id="res-mat" class="font-bold text-brand"></span></div>
                   <div class="flex justify-between"><span>Labor Valuation:</span><span id="res-labour" class="font-bold text-brand"></span></div>
                   <div class="flex justify-between text-brand font-bold pt-1"><span>Baseline (Minimum):</span><span id="res-base"></span></div>
                 </div>
                 
-                <!-- Interactive Slider -->
                 <div class="mt-3">
                   <div class="flex justify-between text-[10px] font-bold text-gray-500 uppercase">
-                    <span>Adjust Margin</span>
+                    <span>Cluster Margin Adjustment</span>
                     <span id="margin-label">20%</span>
                   </div>
                   <input type="range" id="margin-slider" min="0" max="100" value="20" class="w-full mt-2 mb-3 accent-[#D9531E]" oninput="updatePriceDynamic(this.value)">
                   <div class="flex justify-between items-center">
                     <span class="font-bold text-brand">Final ONDC Price:</span>
                     <div class="flex items-center">
-                      <span class="text-lg font-black text-accent mr-1">₹</span>
-                      <input type="number" id="res-price" class="text-lg font-black text-accent bg-transparent text-right outline-none w-20 border-b-2 border-orange-300" onchange="updatePriceManual(this.value)">
+                      <span class="text-xl font-black text-accent mr-1">₹</span>
+                      <input type="number" id="res-price" class="text-xl font-black text-accent bg-transparent text-right outline-none w-24 border-b-2 border-orange-300" onchange="updatePriceManual(this.value)">
                     </div>
                   </div>
                 </div>
@@ -178,21 +213,22 @@
             </div>
 
             <div class="text-left bg-gray-900 p-3 rounded-xl border border-gray-800 mt-2">
-              <p class="text-[9px] text-gray-400 font-mono mb-1 font-bold">BECKN JSON SCHEMA:</p>
+              <p class="text-[9px] text-gray-400 font-mono mb-1 font-bold">BECKN PROTOCOL ADAPTER (JSON):</p>
               <pre id="beckn-json" class="text-[9px] text-green-400 font-mono overflow-x-auto max-h-32"></pre>
             </div>
             
             <div class="flex gap-2 pt-2">
-              <button onclick="downloadPDF()" class="w-1/3 bg-white border-2 border-brand text-brand font-extrabold text-xs py-3.5 rounded-xl flex items-center justify-center gap-1">📄 PDF</button>
-              <button onclick="approveCatalog()" class="w-2/3 bg-brand text-white font-extrabold py-3.5 rounded-xl shadow-lg">Approve & Publish</button>
+              <button onclick="downloadPDF()" class="w-1/3 bg-white border-2 border-brand text-brand font-extrabold text-xs py-3.5 rounded-xl flex items-center justify-center gap-1">📄 PDF Label</button>
+              <button onclick="approveCatalog()" class="w-2/3 bg-brand text-white font-extrabold py-3.5 rounded-xl shadow-lg">Broadcast to Network</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- LISTINGS -->
+      <!-- LISTINGS & SETTLEMENT SIMULATOR -->
       <div id="view-listings" class="view space-y-4">
-        <h2 class="text-xl font-extrabold text-brand mb-1">Active SKUs</h2>
+        <h2 class="text-xl font-extrabold text-brand mb-1">Active SKUs & Settlement</h2>
+        <p class="text-[10px] text-gray-500 font-semibold uppercase mb-4">Items broadcasted to ONDC</p>
         <div id="catalog-list" class="space-y-3"></div>
       </div>
 
@@ -210,25 +246,58 @@
   <script>
     let rawImageData = null;
     let currentAIResult = {};
-    let currentBasePrice = 0; // Fixed: Now accessible globally for math
+    let currentBasePrice = 0;
+
+    // ==========================================
+    // SEED DATA (Aligns with your PPT)
+    // ==========================================
+    function initializeSeedData() {
+        let artisans = JSON.parse(localStorage.getItem('km_artisans') || '[]');
+        if (artisans.length === 0) {
+            artisans = [
+                { id: "ART-1081", name: "Rameshwaram Bhil", phone: "+91 9876543210", craft: "Bamboo Craft", status: "Healthy", isBelow: false },
+                { id: "ART-2094", name: "Sunita Devi", phone: "+91 8765432109", craft: "Handwoven Textiles", status: "Healthy", isBelow: false },
+                { id: "ART-3012", name: "Mahesh Lal", phone: "+91 7654321098", craft: "Wood Craft", status: "Action Req", isBelow: true }
+            ];
+            localStorage.setItem('km_artisans', JSON.stringify(artisans));
+        }
+    }
 
     function getArtisans() { return JSON.parse(localStorage.getItem('km_artisans') || '[]'); }
     function getCatalog() { return JSON.parse(localStorage.getItem('km_catalog') || '[]'); }
 
-    function addArtisan() {
-      const name = prompt("Enter Artisan Full Name:");
-      if(!name) return;
-      const craft = prompt("Enter Main Craft Category:") || "General Craft";
-      const id = "ART-" + Math.floor(1000 + Math.random() * 9000);
-      const isBelowBaseline = Math.random() > 0.5;
-      const artisans = getArtisans();
-      artisans.push({ id, name, craft, status: isBelowBaseline ? 'Action Req' : 'Healthy', isBelow: isBelowBaseline });
-      localStorage.setItem('km_artisans', JSON.stringify(artisans));
-      renderArtisans();
+    // ==========================================
+    // ARTISAN MANAGEMENT & UI
+    // ==========================================
+    function toggleAddArtisanForm() {
+        const form = document.getElementById('add-artisan-form');
+        form.classList.toggle('hidden');
+    }
+
+    function submitArtisan() {
+        const name = document.getElementById('new-art-name').value;
+        const phone = document.getElementById('new-art-phone').value;
+        const craft = document.getElementById('new-art-craft').value;
+        
+        if(!name || !phone || !craft) return alert("Please fill out all artisan details.");
+
+        const id = "ART-" + Math.floor(1000 + Math.random() * 9000);
+        // Simulate Fair-Wage status for demo variation
+        const isBelowBaseline = Math.random() > 0.6; 
+        
+        const artisans = getArtisans();
+        artisans.push({ id, name, phone, craft, status: isBelowBaseline ? 'Action Req' : 'Healthy', isBelow: isBelowBaseline });
+        localStorage.setItem('km_artisans', JSON.stringify(artisans));
+        
+        document.getElementById('new-art-name').value = '';
+        document.getElementById('new-art-phone').value = '';
+        document.getElementById('new-art-craft').value = '';
+        toggleAddArtisanForm();
+        renderArtisans();
     }
 
     function removeArtisan(id) {
-      if(confirm("Are you sure you want to remove this artisan?")) {
+      if(confirm("Remove this artisan from cluster?")) {
         let artisans = getArtisans();
         artisans = artisans.filter(a => a.id !== id);
         localStorage.setItem('km_artisans', JSON.stringify(artisans));
@@ -244,30 +313,90 @@
       
       artisans.forEach(a => {
         const statusColor = a.isBelow ? 'bg-red-50 text-red-700 border-red-200' : 'bg-green-50 text-green-700 border-green-200';
+        
+        // PPT FEATURE: MoSJE Welfare Linkage & Geofencing UI
+        let welfareUI = '';
+        if(a.isBelow) {
+            welfareUI = `
+            <div class="mt-3 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                <p class="text-[9px] font-bold text-blue-800 uppercase mb-1 flex items-center gap-1">🏛️ Automated Welfare Linkage</p>
+                <p class="text-[10px] text-blue-900 font-medium mb-2">Flagged for MoSJE PM-DAKSH Skilling & MSME Tool Kit.</p>
+                <button onclick="alert('IVR System Triggered!\\n\\nAutomated call dispatched to ${a.phone} explaining the PM-DAKSH scheme application process in local dialect.')" class="w-full bg-blue-600 hover:bg-blue-700 transition text-white text-[10px] font-bold py-2 rounded shadow-sm">Trigger Native IVR Alert</button>
+            </div>`;
+        }
+
         html += `<div class="bg-white p-4 rounded-xl border border-gray-100 flex flex-col gap-2 shadow-sm relative">
-          <button onclick="removeArtisan('${a.id}')" class="absolute top-2 right-2 text-gray-300 hover:text-red-500 font-bold text-lg leading-none">&times;</button>
-          <div class="flex justify-between items-start pr-4">
-            <div><p class="font-extrabold text-sm text-brand">${a.name}</p><p class="text-[10px] text-gray-500 font-bold uppercase mt-0.5">${a.craft} • ID: ${a.id}</p></div>
+          <button onclick="removeArtisan('${a.id}')" class="absolute top-3 right-3 text-gray-300 hover:text-red-500 font-bold text-lg leading-none">&times;</button>
+          
+          <div class="flex justify-between items-start pr-6">
+            <div>
+              <p class="font-extrabold text-sm text-brand flex items-center gap-1">${a.name} <span class="text-[8px] bg-gray-100 text-gray-500 px-1 py-0.5 rounded border">📍 SHG Geofenced</span></p>
+              <p class="text-[10px] text-gray-500 font-bold uppercase mt-1">${a.craft} • ${a.phone}</p>
+            </div>
             <span class="${statusColor} text-[9px] px-2 py-1 rounded font-black border uppercase tracking-wider">${a.status}</span>
-          </div><p class="text-[10px] ${a.isBelow ? 'text-red-500' : 'text-green-600'} font-bold">${a.isBelow ? '⚠️ Below Living Wage' : '✓ MSME Verified'}</p>
+          </div>
+          <p class="text-[10px] ${a.isBelow ? 'text-red-500' : 'text-green-600'} font-bold mt-1">${a.isBelow ? '⚠️ Below Living Wage (Alert Active)' : '✓ MSME Standard Verified'}</p>
+          ${welfareUI}
         </div>`;
         selectHtml += `<option value="${a.name}">${a.name} (${a.id})</option>`;
       });
       document.getElementById('artisan-list').innerHTML = html; document.getElementById('catalog-artisan-select').innerHTML = selectHtml;
     }
 
+    // ==========================================
+    // CATALOG & NPCI SETTLEMENT
+    // ==========================================
     function renderCatalog() {
       const catalog = getCatalog();
       document.getElementById('stat-skus').innerText = catalog.length;
       let html = '';
       if(catalog.length === 0) html = '<div class="text-center py-6 text-gray-400"><p class="text-xs font-bold">No cataloged items yet.</p></div>';
       catalog.forEach(item => {
-        html += `<div class="bg-white p-3 rounded-xl border border-gray-100 flex gap-4 items-center shadow-sm">
-          <img src="${item.img || 'https://via.placeholder.com/50'}" class="w-16 h-16 rounded-lg object-cover border border-gray-200">
-          <div class="flex-1 overflow-hidden"><p class="font-extrabold text-xs text-brand truncate">${item.title}</p><p class="text-[10px] text-gray-500 font-semibold mt-1">${item.artisan}</p><p class="text-xs font-black text-accent mt-1">₹${item.price}</p></div>
+        
+        // PPT FEATURE: NPCI/UPI Settlement Simulator
+        html += `<div class="bg-white p-3 rounded-xl border border-gray-100 flex flex-col gap-3 shadow-sm">
+          <div class="flex gap-4 items-center">
+            <img src="${item.img || 'https://via.placeholder.com/50'}" class="w-16 h-16 rounded-lg object-contain bg-gray-100 border border-gray-200 p-1">
+            <div class="flex-1 overflow-hidden">
+              <p class="font-extrabold text-xs text-brand truncate">${item.title}</p>
+              <p class="text-[10px] text-gray-500 font-semibold mt-1">${item.artisan}</p>
+              <p class="text-xs font-black text-accent mt-1">₹${item.price}</p>
+            </div>
+          </div>
+          <div class="border-t border-gray-100 pt-3 flex justify-between items-center">
+            <span class="text-[9px] text-gray-400 font-bold uppercase tracking-wider flex items-center gap-1">📦 India Post API</span>
+            <button onclick="simulateSettlement('${item.artisan}', ${item.price})" class="bg-brand text-white text-[9px] font-bold px-3 py-1.5 rounded shadow-sm hover:bg-gray-800">Simulate Settlement</button>
+          </div>
         </div>`;
       });
       document.getElementById('catalog-list').innerHTML = html;
+    }
+
+    function simulateSettlement(artisanName, price) {
+        const artisanShare = Math.floor(price * 0.97);
+        const repShare = price - artisanShare;
+        alert(`NPCI SPLIT SETTLEMENT INITIATED\n\nTotal Order Value: ₹${price}\n\n✓ 97% (₹${artisanShare}) direct-routed to ${artisanName}'s Jan Dhan Bank Account via UPI.\n\n✓ 3% (₹${repShare}) routed to Local Representative Digital Wallet.`);
+    }
+
+    // ==========================================
+    // UI NAVIGATION & TOGGLES
+    // ==========================================
+    function toggleSync(checkbox) {
+        const badge = document.getElementById('sync-badge');
+        const dot = document.getElementById('sync-dot');
+        const text = document.getElementById('sync-text');
+        
+        if (checkbox.checked) {
+            badge.className = "flex items-center gap-1.5 bg-green-50 px-2 py-1 rounded-md border border-green-200";
+            dot.className = "w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse";
+            text.className = "text-[8px] text-green-700 font-extrabold uppercase tracking-widest";
+            text.innerText = "Online";
+        } else {
+            badge.className = "flex items-center gap-1.5 bg-yellow-50 px-2 py-1 rounded-md border border-yellow-200";
+            dot.className = "w-1.5 h-1.5 bg-yellow-500 rounded-full";
+            text.className = "text-[8px] text-yellow-700 font-extrabold uppercase tracking-widest";
+            text.innerText = "Offline Queue";
+        }
     }
 
     function switchView(viewId) {
@@ -285,6 +414,9 @@
       document.getElementById(`tab-${stepNum}`).classList.add('text-brand');
     }
 
+    // ==========================================
+    // MULTIMEDIA INGESTION
+    // ==========================================
     function handleImage(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -325,7 +457,9 @@
       }
     }
 
-    // Dynamic Pricing Functions
+    // ==========================================
+    // PRICING ENGINE & BECKN ADAPTER
+    // ==========================================
     function updatePriceDynamic(marginPercent) {
       document.getElementById('margin-label').innerText = `${marginPercent}%`;
       const newPrice = currentBasePrice + Math.round(currentBasePrice * (marginPercent / 100));
@@ -346,11 +480,14 @@
     function updateBeckn(price) {
       const becknSchema = {
         context: { domain: "ONDC:RET10", action: "catalog" },
-        message: { item: { descriptor: { name: currentAIResult.title }, price: { value: String(price) }, tags: { msme_verified: true, base_price: currentBasePrice } } }
+        message: { item: { descriptor: { name: currentAIResult.title, long_desc: currentAIResult.description }, price: { value: String(price) }, tags: { msme_verified: true, base_price: currentBasePrice } } }
       };
       document.getElementById('beckn-json').innerText = JSON.stringify(becknSchema, null, 2);
     }
 
+    // ==========================================
+    // THE AI PIPELINE
+    // ==========================================
     async function runSecurePipeline() {
       const artisan = document.getElementById('catalog-artisan-select').value;
       if(!artisan) return alert("Select an artisan first.");
@@ -373,17 +510,20 @@
         const ai = data.aiData;
         const finalImage = data.studioImage || rawImageData;
         
-        // Assign the base price to the global variable so the slider math works
         currentBasePrice = ai.baseRecommendation;
-        currentAIResult = { title: ai.title, artisan, price: ai.finalONDCPrice, img: finalImage };
+        currentAIResult = { title: ai.title, artisan, price: ai.finalONDCPrice, img: finalImage, description: ai.description };
 
         document.getElementById('res-title').innerText = ai.title;
         document.getElementById('res-desc-ai').innerText = ai.description;
+        
+        // Amazon-style bullets
+        const bulletsHtml = (ai.bulletPoints || []).map(bp => `<li>${bp}</li>`).join('');
+        document.getElementById('res-bullets').innerHTML = bulletsHtml;
+
         document.getElementById('res-mat').innerText = `₹${ai.materialCost}`;
         document.getElementById('res-labour').innerText = `₹${ai.fairLabourValue} (${ai.laborHours} hrs)`;
         document.getElementById('res-base').innerText = `₹${ai.baseRecommendation}`;
         
-        // Set the input field and reset the slider
         document.getElementById('res-price').value = ai.finalONDCPrice;
         document.getElementById('margin-slider').value = 20;
         document.getElementById('margin-label').innerText = '20%';
@@ -415,7 +555,12 @@
       switchView('listings');
     }
 
-    window.onload = () => { renderArtisans(); renderCatalog(); };
+    // BOOT
+    window.onload = () => { 
+        initializeSeedData();
+        renderArtisans(); 
+        renderCatalog(); 
+    };
   </script>
 </body>
 </html>
