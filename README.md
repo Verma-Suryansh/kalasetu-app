@@ -9,7 +9,7 @@ Kala-Mitra is an AI-powered, voice-guided Progressive Web App (PWA) designed to 
 
 ### 📌 Important Links
 * **🔴 Live Prototype:** [Test the PWA here](https://kalasetu-app-pearl.vercel.app/)
-* **📊 Pitch Deck:** [View our SIH Presentation](YOUR_PPT_LINK_HERE)
+* **📊 Pitch Deck:** [View our SIH Presentation](https://drive.google.com/file/d/1_Wm8xR181Y-sWG3tdZ6d4oAoik8LGcr9/view?usp=sharing)
 
 ---
 
